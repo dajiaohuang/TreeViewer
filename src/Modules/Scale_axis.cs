@@ -35,7 +35,7 @@ namespace ScaleAxis
         public const string Name = "Scale axis";
         public const string HelpText = "Draws a scale axis.";
         public const string Author = "Giorgio Bianchini";
-        public static Version Version = new Version("1.2.1");
+        public static Version Version = new Version("1.3.0");
         public const string Id = "aeacf625-90cf-41a5-8d10-c37c75aaa2b1";
         public const ModuleTypes ModuleType = ModuleTypes.Plotting;
 
@@ -93,7 +93,7 @@ namespace ScaleAxis
 
             return new List<(string, string)>()
             {
-                ( "Axes", "Group:10"),
+                ( "Axes", "Group:12"),
                 
                 /// <param name="Top axis">
                 /// This check box determines whether the axis is shown above the tree.
@@ -104,6 +104,16 @@ namespace ScaleAxis
                 /// This check box determines whether the axis is shown below the tree.
                 /// </param>
                 ( "Bottom axis", "CheckBox:true"),
+                
+                /// <param name="Left axis">
+                /// This check box determines whether the left part of the axis is shown (on circular trees only).
+                /// </param>
+                ( "Left axis", "CheckBox:true"),
+                
+                /// <param name="Right axis">
+                /// This check box determines whether the right part of the axis is shown (on circular trees only).
+                /// </param>
+                ( "Right axis", "CheckBox:true"),
                 
                 /// <param name="Reverse axes">
                 /// If this check box is checked, the units of the axes are reversed, i.e. the tips of the tree will start at an age of `0`. Otherwise,
@@ -294,6 +304,8 @@ namespace ScaleAxis
 
             bool showBottomAxis = (bool)parameterValues["Bottom axis"];
             bool showTopAxis = (bool)parameterValues["Top axis"];
+            bool showRightAxis = (bool)parameterValues["Right axis"];
+            bool showLeftAxis = (bool)parameterValues["Left axis"];
 
             double tickSpacing = (double)parameterValues["Tick spacing:"];
             int labelsEvery = (int)(double)parameterValues["Labels every:"];
@@ -954,11 +966,19 @@ namespace ScaleAxis
                             bottomAxis2 = new Point[] { bottomAxis2[1], bottomAxis2[0] };
                         }
 
-                        graphics.StrokePath(new GraphicsPath().MoveTo(bottomAxis[0]).LineTo(bottomAxis[1]), axisColour, lineWidth);
-                        graphics.StrokePath(new GraphicsPath().MoveTo(bottomAxis2[0]).LineTo(bottomAxis2[1]), axisColour, lineWidth);
+                        if (showRightAxis)
+                        {
+                            graphics.StrokePath(new GraphicsPath().MoveTo(bottomAxis[0]).LineTo(bottomAxis[1]), axisColour, lineWidth);
+                        }
+
+                        if (showLeftAxis)
+                        {
+                            graphics.StrokePath(new GraphicsPath().MoveTo(bottomAxis2[0]).LineTo(bottomAxis2[1]), axisColour, lineWidth);
+                        }
 
                         for (int i = 0; i <= tickCount; i++)
                         {
+                            if (showRightAxis)
                             {
                                 Point tickStart = new Point(bottomAxis[0].X * (1 - i * tickAmount) + bottomAxis[1].X * i * tickAmount, bottomAxis[0].Y * (1 - i * tickAmount) + bottomAxis[1].Y * i * tickAmount);
                                 Point tickEnd = new Point(tickStart.X, tickStart.Y + tickSize * (i % labelsEvery == 0 ? 1 : 0.75));
@@ -1014,6 +1034,7 @@ namespace ScaleAxis
                                 }
                             }
 
+                            if (showLeftAxis)
                             {
                                 Point tickStart = new Point(bottomAxis2[0].X * (1 - i * tickAmount) + bottomAxis2[1].X * i * tickAmount, bottomAxis2[0].Y * (1 - i * tickAmount) + bottomAxis2[1].Y * i * tickAmount);
                                 Point tickEnd = new Point(tickStart.X, tickStart.Y + tickSize * (i % labelsEvery == 0 ? 1 : 0.75));
@@ -1079,6 +1100,7 @@ namespace ScaleAxis
 
                             if (unitPosition == 0 || unitPosition == 1)
                             {
+                                if (showRightAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1116,6 +1138,7 @@ namespace ScaleAxis
                                     updateMaxMin(sumPoint(endPoint, new Point(-textSize.Width * scaleNorm.X + (labelSpacing + textSize.Height) * perpScaleNorm.X, -textSize.Width * scaleNorm.Y + (labelSpacing + textSize.Height) * perpScaleNorm.Y)));
                                 }
 
+                                if (showLeftAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1156,6 +1179,7 @@ namespace ScaleAxis
 
                             if (unitPosition == 2 || unitPosition == 1)
                             {
+                                if (showRightAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1193,6 +1217,7 @@ namespace ScaleAxis
                                     updateMaxMin(sumPoint(endPoint, new Point(textSize.Width * scaleNorm.X + (labelSpacing + textSize.Height) * perpScaleNorm.X, textSize.Width * scaleNorm.Y + (labelSpacing + textSize.Height) * perpScaleNorm.Y)));
                                 }
 
+                                if (showLeftAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1250,14 +1275,14 @@ namespace ScaleAxis
 
                         Point[] topAxis = new Point[]
                         {
-                        new Point(center.X + minRadius, axisY),
-                        new Point(center.X + maxRadius, axisY)
+                            new Point(center.X + minRadius, axisY),
+                            new Point(center.X + maxRadius, axisY)
                         };
 
                         Point[] topAxis2 = new Point[]
                         {
-                        new Point(center.X - minRadius, axisY),
-                        new Point(center.X - maxRadius, axisY)
+                            new Point(center.X - minRadius, axisY),
+                            new Point(center.X - maxRadius, axisY)
                         };
 
                         if (reverseAxis)
@@ -1266,11 +1291,19 @@ namespace ScaleAxis
                             topAxis2 = new Point[] { topAxis2[1], topAxis2[0] };
                         }
 
-                        graphics.StrokePath(new GraphicsPath().MoveTo(topAxis[0]).LineTo(topAxis[1]), axisColour, lineWidth);
-                        graphics.StrokePath(new GraphicsPath().MoveTo(topAxis2[0]).LineTo(topAxis2[1]), axisColour, lineWidth);
+                        if (showRightAxis)
+                        {
+                            graphics.StrokePath(new GraphicsPath().MoveTo(topAxis[0]).LineTo(topAxis[1]), axisColour, lineWidth);
+                        }
+
+                        if (showLeftAxis)
+                        {
+                            graphics.StrokePath(new GraphicsPath().MoveTo(topAxis2[0]).LineTo(topAxis2[1]), axisColour, lineWidth);
+                        }
 
                         for (int i = 0; i <= tickCount; i++)
                         {
+                            if (showRightAxis)
                             {
                                 Point tickStart = new Point(topAxis[0].X * (1 - i * tickAmount) + topAxis[1].X * i * tickAmount, topAxis[0].Y * (1 - i * tickAmount) + topAxis[1].Y * i * tickAmount);
                                 Point tickEnd = new Point(tickStart.X, tickStart.Y - tickSize * (i % labelsEvery == 0 ? 1 : 0.75));
@@ -1326,6 +1359,7 @@ namespace ScaleAxis
                                 }
                             }
 
+                            if (showLeftAxis)
                             {
                                 Point tickStart = new Point(topAxis2[0].X * (1 - i * tickAmount) + topAxis2[1].X * i * tickAmount, topAxis2[0].Y * (1 - i * tickAmount) + topAxis2[1].Y * i * tickAmount);
                                 Point tickEnd = new Point(tickStart.X, tickStart.Y - tickSize * (i % labelsEvery == 0 ? 1 : 0.75));
@@ -1391,6 +1425,7 @@ namespace ScaleAxis
 
                             if (unitPosition == 0 || unitPosition == 1)
                             {
+                                if (showRightAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1430,6 +1465,7 @@ namespace ScaleAxis
                                     updateMaxMin(sumPoint(endPoint, new Point(-textSize.Width * scaleNorm.X - (labelSpacing + top) * perpScaleNorm.X, -textSize.Width * scaleNorm.Y - (labelSpacing + top) * perpScaleNorm.Y)));
                                 }
 
+                                if (showLeftAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1471,6 +1507,7 @@ namespace ScaleAxis
 
                             if (unitPosition == 2 || unitPosition == 1)
                             {
+                                if (showRightAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
@@ -1509,6 +1546,7 @@ namespace ScaleAxis
                                     updateMaxMin(sumPoint(endPoint, new Point(textSize.Width * scaleNorm.X - (labelSpacing + top) * perpScaleNorm.X, textSize.Width * scaleNorm.Y - (labelSpacing + top) * perpScaleNorm.Y)));
                                 }
 
+                                if (showLeftAxis)
                                 {
                                     Point candidatePoint;
                                     Point endPoint;
